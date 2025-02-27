@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sri Lankan Service Export Income Tax Calculator</title>
+  <link rel="shortcut icon" href="bag.png" type="image/png">
+  <!-- Bootstrap CSS -->
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  />
+  <!-- Animate.css for animations -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+  <!-- Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <style>
+    body {
+      background: #f7f7f7;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .calculator-container {
+      max-width: 100%;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (min-width: 768px) {
+      .calculator-container {
+        max-width: 600px;
+        padding: 30px;
+      }
+      
+      body {
+        padding-top: 50px;
+      }
+    }
+
+    /* Table Styling */
+    .result-table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .result-table thead th {
+      background-color: #007BFF; /* Best heading color */
+      color: #fff;
+      text-align: left;
+      font-size: 14px;
+      padding: 8px;
+    }
+    
+    .result-table th,
+    .result-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    @media (min-width: 576px) {
+      .result-table thead th,
+      .result-table th,
+      .result-table td {
+        font-size: 16px;
+        padding: 10px;
+      }
+    }
+    
+    .result-table tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    /* Responsive table styles */
+    @media (max-width: 480px) {
+      .table-responsive {
+        overflow-x: auto;
+      }
+    }
+
+    /* Watermark styling */
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 42px;
+      color: #000;
+      opacity: 0.07;
+      pointer-events: none;
+      width: 100%;
+      text-align: center;
+    }
+    
+    /* PDF-specific styling that will only show in the PDF */
+    .pdf-container {
+      display: none;
+      padding: 30px;
+      max-width: 100%;
+      margin: auto;
+      position: relative;
+    }
+    
+    .pdf-header {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    .pdf-footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+    }
+    
+    .pdf-logo {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .pdf-date {
+      text-align: right;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    /* Custom button styles */
+    .btn {
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-primary, .btn-success {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover, .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Form styling */
+    .form-control {
+      height: calc(1.5em + 1rem + 2px);
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    
+    @media (max-width: 576px) {
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      h4 {
+        font-size: 1.2rem;
+      }
+    }
+    
+    /* Content Wrapper for sticky footer */
+    .content-wrapper {
+      flex: 1 0 auto;
+    }
+    
+    /* Simple, Neutral Footer */
+    footer {
+      flex-shrink: 0;
+      background: #f8f9fa;
+      color: #333;
+      padding: 20px 0;
+      width: 100%;
+      text-align: center;
+    }
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <div class="container">
+      <div class="calculator-container" id="calculator">
+        <h2 class="text-center mb-4 animate__animated animate__fadeInDown">
+          <i class="fas fa-calculator"></i> Sri Lankan Service Export Income Tax Calculator
+        </h2>
+
+        <div class="form-group">
+          <input
+            type="number"
+            id="salaryInput"
+            class="form-control"
+            placeholder="Enter your monthly salary in LKR"
+          />
+        </div>
+
+        <button
+          id="calculateBtn"
+          class="btn btn-primary btn-block animate__animated animate__fadeInUp"
+        >
+          <i class="fas fa-calculator"></i> Calculate
+        </button>
+
+        <div id="result" class="mt-4 animate__animated animate__fadeIn" style="display: none;">
+          <h4>Tax Calculation Summary</h4>
+          <div class="table-responsive">
+            <table class="table table-bordered result-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Amount (LKR)</th>
+                  <th>Tax (LKR)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Gross Salary</td>
+                  <td id="grossSalary">0</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>Tax-Free Allowance</td>
+                  <td id="taxFreeAllowance">150,000</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>6% Tax Bracket</td>
+                  <td id="taxableAt6">0</td>
+                  <td id="taxAt6">0.00</td>
+                </tr>
+                <tr>
+                  <td>15% Tax Bracket</td>
+                  <td id="taxableAt15">0</td>
+                  <td id="taxAt15">0.00</td>
+                </tr>
+                <tr>
+                  <th>Total Tax</th>
+                  <th></th>
+                  <th id="totalTax">0.00</th>
+                </tr>
+                <tr>
+                  <th>Net Salary</th>
+                  <th colspan="2" id="netSalary">0.00</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-muted small mt-2">
+            Ensure your earnings are remitted through a Sri Lankan bank to benefit from these rates.
+          </p>
+          <button id="downloadPDF" class="btn btn-success btn-block mt-3">
+            <i class="fas fa-file-pdf"></i> Download Tax Summary PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Simple Footer -->
+  <footer>
+    <div class="container">
+      <p class="mb-1">
+        <i class="fas fa-code"></i> source -
+        <a href="https://tax.sadeepa.me" target="_blank">tax.sadeepa.me</a>
+      </p>
+      <p class="mb-1">
+        © 2025 All Rights Reserved
+      </p>
+    </div>
+  </footer>
+  
+  <!-- Hidden PDF Template - This will only be used for PDF generation -->
+  <div id="pdfTemplate" class="pdf-container">
+    <div class="watermark">miniduonline Tax Calculator</div>
+    
+    <div class="pdf-logo">
+      <i class="fas fa-file-invoice fa-4x" style="color: #0075bf;"></i>
+    </div>
+    
+    <div class="pdf-header">
+      <h2><i class="fas fa-calculator"></i> Tax Calculation Summary</h2>
+    </div>
+    
+    <div class="pdf-date" id="pdfDate"></div>
+    
+    <table class="table table-bordered result-table" id="pdfTable">
+      <thead>
+        <tr>
+          <th><i class="fas fa-info-circle"></i> Description</th>
+          <th><i class="fas fa-rupee-sign"></i> Amount (LKR)</th>
+          <th><i class="fas fa-percentage"></i> Tax (LKR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Gross Salary</td>
+          <td id="pdfGrossSalary">0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Tax-Free Allowance</td>
+          <td id="pdfTaxFreeAllowance">150,000</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>6% Tax Bracket</td>
+          <td id="pdfTaxableAt6">0</td>
+          <td id="pdfTaxAt6">0.00</td>
+        </tr>
+        <tr>
+          <td>15% Tax Bracket</td>
+          <td id="pdfTaxableAt15">0</td>
+          <td id="pdfTaxAt15">0.00</td>
+        </tr>
+        <tr>
+          <th>Total Tax</th>
+          <th></th>
+          <th id="pdfTotalTax">0.00</th>
+        </tr>
+        <tr>
+          <th>Net Salary</th>
+          <th colspan="2" id="pdfNetSalary">0.00</th>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="pdf-footer">
+      <p><i class="fas fa-certificate"></i> Generated by miniduonline Tax Calculator</p>
+      <p><small>Source: <a href="https://tax.sadeepa.me">tax.sadeepa.me</a> | All Rights Reserved</small></p>
+    </div>
+  </div>
+
+  <!-- jQuery (required by html2pdf) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <!-- html2pdf.js for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script>
+    // Tax Calculation Logic
+    document.getElementById('calculateBtn').addEventListener('click', function () {
+      var grossSalary = parseFloat(document.getElementById('salaryInput').value);
+      if (isNaN(grossSalary) || grossSalary < 0) {
+        alert('Please enter a valid salary amount.');
+        return;
+      }
+
+      // Constants
+      var taxFreeAllowance = 150000;
+      var bracket6Limit = 85000; // Salary up to 235,000 => 150,000 + 85,000
+      var taxableAt6 = 0, taxAt6 = 0, taxableAt15 = 0, taxAt15 = 0;
+
+      // Calculate 6% bracket
+      if (grossSalary > taxFreeAllowance) {
+        taxableAt6 = Math.min(grossSalary - taxFreeAllowance, bracket6Limit);
+        taxAt6 = taxableAt6 * 0.06;
+      }
+      // Calculate 15% bracket
+      if (grossSalary > taxFreeAllowance + bracket6Limit) {
+        taxableAt15 = grossSalary - taxFreeAllowance - bracket6Limit;
+        taxAt15 = taxableAt15 * 0.15;
+      }
+
+      var totalTax = taxAt6 + taxAt15;
+      var netSalary = grossSalary - totalTax;
+
+      // Update the on-screen table
+      document.getElementById('grossSalary').innerText = grossSalary.toLocaleString();
+      document.getElementById('taxFareeAllowance').innerText = taxFreeAllowance.toLocaleString();
+      document.getElementById('taxableAt6').innerText = taxableAt6.toLocaleString();
+      document.getElementById('taxAt6').innerText = taxAt6.toFixed(2);
+      document.getElementById('taxableAt15').innerText = taxableAt15.toLocaleString();
+      document.getElementById('taxAt15').innerText = taxAt15.toFixed(2);
+      document.getElementById('totalTax').innerText = totalTax.toFixed(2);
+      document.getElementById('netSalary').innerText = netSalary.toFixed(2);
+
+      // Update the PDF template
+      document.getElementById('pdfGrossSalary').innerText = grossSalary.toLocaleString();
+      document.getElementById('pdfTaxFreeAllowance').innerText = taxFreeAllowance.toLocaleString();
+      document.getElementById('pdfTaxableAt6').innerText = taxableAt6.toLocaleString();
+      document.getElementById('pdfTaxAt6').innerText = taxAt6.toFixed(2);
+      document.getElementById('pdfTaxableAt15').innerText = taxableAt15.toLocaleString();
+      document.getElementById('pdfTaxAt15').innerText = taxAt15.toFixed(2);
+      document.getElementById('pdfTotalTax').innerText = totalTax.toFixed(2);
+      document.getElementById('pdfNetSalary').innerText = netSalary.toFixed(2);
+
+      // Reveal the result section
+      document.getElementById('result').style.display = 'block';
+      
+      // Scroll to results on mobile
+      if (window.innerWidth < 768) {
+        document.getElementById('result').scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+
+    // PDF generation with improved styling
+    document.getElementById('downloadPDF').addEventListener('click', function () {
+      // Set current date in the PDF
+      var today = new Date();
+      document.getElementById('pdfDate').innerText = 'Date: ' + today.toLocaleDateString();
+      
+      var element = document.getElementById('pdfTemplate');
+      var opt = {
+        margin: 0.5,
+        filename: 'SriLanka_Tax_Calculation.pdf',
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      
+      // Make the PDF template visible just for PDF generation
+      element.style.display = 'block';
+      
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(function() {
+          // Hide the template again after PDF generation
+          element.style.display = 'none';
+        });
+    });
+    
+    // Handle input events for better mobile experience
+    document.getElementById('salaryInput').addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        document.getElementById('calculateBtn').click();
+      }
+    });
+    
+    // Focus the input field when page loads
+    window.onload = function() {
+      document.getElementById('salaryInput').focus();
+    };
+  </script>
+</body>
+</html>
